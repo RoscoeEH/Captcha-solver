@@ -18,15 +18,20 @@ def generate_captcha(image_name):
     image = ImageCaptcha(width = 280, height = 90)
     image_path = os.path.join(image_dir, f"{image_name}.png")
     image.write(captcha_string, image_path)
-
-    # Save the mapping of the ID to the contents as a string
-    with open("Training_Data_Mappings.txt", 'w') as f:
-       f.write(f"{image_name}:{captcha_string}\n")
-
+        
        
     return captcha_string
 
 if __name__ == "__main__":
+    data = "filename,label\n"
+    
     for i in range(100_000):
-        image_id = f"{i:06}"
-        generate_captcha(image_id)
+        image_id = f"{i:05}"
+        captcha_string = generate_captcha(image_id)
+
+        data += f"{image_id}.png,{captcha_string}\n"
+            
+
+    with open("Training_Data_Mappings.csv", 'w') as f:
+        f.truncate(0)
+        f.write(data)
