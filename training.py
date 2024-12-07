@@ -39,3 +39,8 @@ cap_dir = "Training_Data"
 dataset = Captcha_Text_Dataset(labels_csv=csv_file, captcha_dir=cap_dir, transform=Transform)
 
 dataloader = DataLoader(dataset, shuffle=True)
+
+
+for image, label in dataloader:
+    print(image.size(0))
+    print(label)

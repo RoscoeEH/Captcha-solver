@@ -2,6 +2,8 @@ from captcha.image import ImageCaptcha
 import random
 import string
 import os
+import shutil
+import sys
 
 def generate_captcha(image_name):
     # Sets the dir to store the captcha 
@@ -24,9 +26,14 @@ def generate_captcha(image_name):
 
 if __name__ == "__main__":
     data = "filename,label\n"
-    
-    for i in range(100_000):
-        image_id = f"{i:05}"
+    shutil.rmtree("Training_Data")
+
+    args = sys.argv
+    if len(args) != 2 or not args[1].isdigit():
+        raise IOError("Incorrect number of arguments")
+    width = len(str(args[1])) 
+    for i in range(1, int(args[1]) + 1):
+        image_id = f"{i:0{width}}"
         captcha_string = generate_captcha(image_id)
 
         data += f"{image_id}.png,{captcha_string}\n"
