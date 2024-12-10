@@ -4,6 +4,13 @@ from torchvision import transforms
 from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 
+# Imports for neural net
+import torch.nn as nn
+import torch.nn.functional as Func
+
+############################
+# Convert images to tensors
+############################
 
 Transform = transforms.Compose([
     transforms.ToTensor()
@@ -40,7 +47,13 @@ dataset = Captcha_Text_Dataset(labels_csv=csv_file, captcha_dir=cap_dir, transfo
 
 dataloader = DataLoader(dataset, shuffle=True)
 
+############
+# Neural Net
+############
 
-for image, label in dataloader:
-    print(image.size(0))
-    print(label)
+
+# Class represents a convolutions neural network
+class Net(nn.module):
+    def __init__(self):
+        super().__init__()
+        
