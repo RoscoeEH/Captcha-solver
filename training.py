@@ -6,7 +6,7 @@ from torch.utils.data import Dataset, DataLoader
 
 # Imports for neural net
 import torch.nn as nn
-import torch.nn.functional as Func
+import torch.nn.functional as func
 
 ############################
 # Convert images to tensors
@@ -53,7 +53,26 @@ dataloader = DataLoader(dataset, shuffle=True)
 
 
 # Class represents a convolutions neural network
-class Net(nn.module):
-    def __init__(self):
+class Net(nn.Module):
+    def __init__(self, num_classes, hidden_dim, num_lstm_layers):
         super().__init__()
+        self.conv1 == nn.Conv2d(1, 32, 3)
+        self.pool = nn.MaxPool2d(2,2)
+        self.conv2 = nn.Conv2d(32, 64, 3)
+
+        self.lstm = nn.LSTM(input_size=64, hidden_size=hidden_dim, num_layers=num_lstm_layers, batch_first=True)
+
+        self.fc = nn.Linear(hidden_dim, num_classes)
+
+    def forward(self, x):
+        x = self.pool(func.relu(self.conv1(x)))
+        x = self.pool(func.relu(self.conv2(x)))
         
+        batch_size, channels, height, width = x.size()
+        x = x.permute(0, 3, 1, 2).contiguous()  # Reshape to (batch, width, channels * height)
+        x = x.view(batch_size, width, -1)
+        
+        x, _ = self.lstm(x)  # Output shape: (batch, seq_len, hidden_dim)
+        
+        x = self.fc(x)  # Output shape: (batch, seq_len, num_classes)
+        return x
