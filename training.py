@@ -70,27 +70,36 @@ class Captcha_Text_Dataset(Dataset):
 class Net(nn.Module):
     def __init__(self, num_classes, hidden_dim, num_lstm_layers):
         super().__init__()
-        self.conv1 = nn.Conv2d(1, 32, 3)  # Grayscale input
+        # Applies 2D convolution layer # TODO: Figure out what inputs mean; I think they refer to the dimensions of the image and the type of pixels(grayscale) but unsure
+        self.conv1 = nn.Conv2d(1, 32, 3)
+        # applies max pooling to the layers TODO: inputs; i think they pool 2x2 sections of the layers?
         self.pool = nn.MaxPool2d(2, 2)
+        # applies second convolutional layer
         self.conv2 = nn.Conv2d(32, 64, 3)
 
-
+        # Applies LSTM layer # TODO: only vaguely remember what this does
         self.lstm = nn.LSTM(input_size=1344, hidden_size=hidden_dim, num_layers=num_lstm_layers, batch_first=True)
-        
+
+        # linearly connect layers? 
         self.fc = nn.Linear(hidden_dim, num_classes)
 
     def forward(self, x):
+        # pool the results of conv1 -> pool the results of conv2
         x = self.pool(func.relu(self.conv1(x)))
         x = self.pool(func.relu(self.conv2(x)))
 
+        
         batch_size, channels, height, width = x.size()
+        # TODO: figure out what view is
         x = x.view(batch_size, width, channels * height)
+
         
         x, _ = self.lstm(x)
         print(x.shape)
         x = self.fc(x)
         print(x.shape)
         #x = x.mean(dim=1)
+        # Added for a bug fix I don't fully understand
         x = x.permute(0, 2, 1)
         print(x.shape)
         return x
