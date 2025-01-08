@@ -26,7 +26,7 @@ def read_csv(path):
         for row in file.readlines():
             items = row.split(",")
             hashMap[items[0]] = items[1]
-
+    
     return hashMap
 
 class Captcha_Text_Dataset(Dataset):
@@ -80,17 +80,17 @@ class Captcha_Text_Dataset(Dataset):
 class Net(nn.Module):
     def __init__(self, num_classes, hidden_dim, num_lstm_layers):
         super().__init__()
-        # Applies 2D convolution layer # TODO: Figure out what inputs mean; I think they refer to the dimensions of the image and the type of pixels(grayscale) but unsure
-        self.conv1 = nn.Conv2d(1, 32, 3)
-        # applies max pooling to the layers TODO: inputs; i think they pool 2x2 sections of the layers?
+        # Applies 2D convolution layer 
+        self.conv1 = nn.Conv2d(1, 32, 3) # (1 for grayscale, 32 filters applied, 3x3 filters)
+        # applies max pooling to the layers 
         self.pool = nn.MaxPool2d(2, 2)
         # applies second convolutional layer
         self.conv2 = nn.Conv2d(32, 64, 3)
 
-        # Applies LSTM layer # TODO: only vaguely remember what this does
+        # Applies LSTM layer 
         self.lstm = nn.LSTM(input_size=1344, hidden_size=hidden_dim, num_layers=num_lstm_layers, batch_first=True)
 
-        # linearly connect layers? 
+        # Applies Fully Connected layer 
         self.fc = nn.Linear(hidden_dim, num_classes)
 
     def forward(self, x):
@@ -105,13 +105,9 @@ class Net(nn.Module):
 
         
         x, _ = self.lstm(x)
-        print(x.shape)
+
         x = self.fc(x)
-        print(x.shape)
-        #x = x.mean(dim=1)
-        # Added for a bug fix I don't fully understand
-        x = x.permute(0, 2, 1)
-        print(x.shape)
+        
         return x
 
 
@@ -179,3 +175,5 @@ torch.save(model.state_dict(), "captcha_recognition_model.pth")
 print("Model saved")
 
 #  LocalWords:  captchas
+
+
