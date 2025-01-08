@@ -37,7 +37,9 @@ class Captcha_Text_Dataset(Dataset):
         self.transform = transform
 
         # hashmap for char to index of a given alphanumeric char
-        self.char_map = {char: idx for idx, char in enumerate(string.ascii_letters + string.digits)}
+        # Helps in conversion to tensor
+        # idx + 1 allows for 0 to be used padding
+        self.char_map = {char: idx + 1 for idx, char in enumerate(string.ascii_letters + string.digits)}
         # This is used to pad captchas the max length
         self.max_seq_len = 8
 
@@ -50,25 +52,25 @@ class Captcha_Text_Dataset(Dataset):
     # Given a name of a captcha return the tensor of the image and a tensor of the string it represents
     def __getitem__(self, key):
         cap_name = key # the name of the image file
-        label = self.data[key] # The string represented in the image
+        cap_code = self.data[key] # The string represented in the image
 
         # Load and transform image
-        cap_path = os.path.join(self.captcha_dir, cap_name) # The full path name based on the directory and the individual .png name
+
+        cap_path = os.path.join(self.captcha_dir, cap_name) 
         cap = Image.open(cap_path).convert("L")  # Convert to grayscale
 
-        # If there is a transform -> apply it to the image # In lay-men's: convert the image to tensor
+        # Convert image to tensor 
         if self.transform:
             cap = self.transform(cap)
 
-        # Convert label to integer sequence
-        label_seq = [self.char_map[char] for char in label] # This seems to just be converting the string label into an array in a confusing way (Now that the holidays are over you need to stop copy pasting code you don't understand)
+        # Convert cap_code to integer sequence
+        cap_code_seq = [self.char_map[char] for char in cap_code] 
 
-        # TODO: change 'label' to something with a less ambiguous meaning
+        
+        # Pads cap_code_seq in self.max_seq_len
+        cap_code_seq += [0] * (self.max_seq_len - len(cap_code_seq))
 
-        # Pads label_seq in self.max_seq_len
-        label_seq += [0] * (self.max_seq_len - len(label_seq))
-
-        return cap, torch.tensor(label_seq, dtype=torch.long)
+        return cap, torch.tensor(cap_code_seq, dtype=torch.uint8)
 
 
 ############
