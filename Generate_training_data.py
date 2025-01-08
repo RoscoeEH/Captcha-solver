@@ -46,7 +46,7 @@ if __name__ == "__main__":
     # Generate images
     num_images = int(args[1])
     name_length = len(str(num_images))  # For zero-padding
-    data = ["filename,label"]
+    data = []
 
     for i in range(1, num_images + 1):
         image_id = f"{i:0{name_length}}"

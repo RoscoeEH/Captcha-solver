@@ -1,5 +1,4 @@
 import os
-import pandas as pd
 import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
@@ -18,11 +17,22 @@ transform = transforms.Compose([
     transforms.ToTensor()
 ])
 
+# Used to read in the filenames and the string encoded in the captcha
+# Reads a 2-col csv into a hashmap where the first value is the key and the second is the value
+def read_csv(path):
+    hashMap = {}
+
+    with open(path, "r") as file:
+        for row in file.readlines():
+            items = row.split(",")
+            hashMap[items[0]] = items[1]
+
+    return hashMap
+
 class Captcha_Text_Dataset(Dataset):
     def __init__(self, labels_csv, captcha_dir, transform=None):
-        # Contains both the labels and the corresponding string
-        # Maybe an array of hashmaps?
-        self.data = pd.read_csv(labels_csv)  # TODO: Understand and possibly redo using familiar tools (i.e. standard file reading given the simplicity of the CSV)
+        # Hashmap of filenames to represented string
+        self.data = read_csv(labels_csv)
         self.captcha_dir = captcha_dir
         self.transform = transform
 
@@ -37,12 +47,10 @@ class Captcha_Text_Dataset(Dataset):
         return len(self.data)
 
 
-    # Given an index of a captcha return the tensor of the image and a tensor of the string it represents
-    def __getitem__(self, idx):
-        # self.data is an array of hashmaps, row is the hashmap at index idx
-        row = self.data.iloc[idx]
-        cap_name = row['filename'] # the name of the image file
-        label = row['label'] # The string represented in the image
+    # Given a name of a captcha return the tensor of the image and a tensor of the string it represents
+    def __getitem__(self, key):
+        cap_name = key # the name of the image file
+        label = self.data[key] # The string represented in the image
 
         # Load and transform image
         cap_path = os.path.join(self.captcha_dir, cap_name) # The full path name based on the directory and the individual .png name
@@ -110,7 +118,9 @@ class Net(nn.Module):
 # Training Setup
 # ====================
 # Hyperparameters
-num_classes = len(string.ascii_letters + string.digits)  # Total number of characters
+
+# Total number of characters
+num_classes = len(string.ascii_letters + string.digits)
 hidden_dim = 128
 num_lstm_layers = 2
 learning_rate = 0.001
