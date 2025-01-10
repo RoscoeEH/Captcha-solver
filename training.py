@@ -25,7 +25,7 @@ def read_csv(path):
     with open(path, "r") as file:
         for row in file.readlines():
             items = row.split(",")
-            hashMap[items[0]] = items[1]
+            hashMap[int(items[0][:-4])] = items[1]
     
     return hashMap
 
@@ -52,6 +52,7 @@ class Captcha_Text_Dataset(Dataset):
     # Given a name of a captcha return the tensor of the image and a tensor of the string it represents
     def __getitem__(self, key):
         cap_name = key # the name of the image file
+        print(key)
         cap_code = self.data[key] # The string represented in the image
 
         # Load and transform image
@@ -111,7 +112,7 @@ class Net(nn.Module):
         return x
 
 
-
+    
 # ====================
 # Training Setup
 # ====================
