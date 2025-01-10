@@ -26,8 +26,9 @@ def read_csv(path):
         for row in file.readlines():
             items = row.split(",")
             hashMap[int(items[0][:-4])] = items[1]
-    
+
     return hashMap
+
 
 class Captcha_Text_Dataset(Dataset):
     def __init__(self, labels_csv, captcha_dir, transform=None):
