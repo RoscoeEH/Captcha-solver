@@ -58,7 +58,7 @@ class Captcha_Text_Dataset(Dataset):
 
         # Load and transform image
 
-        cap_path = os.path.join(self.captcha_dir, cap_name) 
+        cap_path = os.path.join(self.captcha_dir,f"{cap_name:0{len(str(len(self.data)))}}.png")
         cap = Image.open(cap_path).convert("L")  # Convert to grayscale
 
         # Convert image to tensor 
