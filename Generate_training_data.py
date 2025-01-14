@@ -57,6 +57,6 @@ if __name__ == "__main__":
 
     # Write mappings to CSV
     with open(OUTPUT_CSV, 'w') as f:
-        f.write("\n".join(data))
+        f.write("\n".join(data) + "\n")
 
        
