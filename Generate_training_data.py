@@ -35,24 +35,50 @@ def generate_captcha(image_name):
 if __name__ == "__main__":
     # Argument parsing
     args = sys.argv
-    if len(args) != 2 or not args[1].isdigit():
+    if len(args) < 2 or not args[1].isdigit():
         print("Incorrect arguments")
         sys.exit(1)
 
-    # Reset training data directory
-    if os.path.exists(IMAGE_DIR):
-        shutil.rmtree(IMAGE_DIR)
+    params = []
+    if len(args) > 2:
+        for a in args[2:]:
+            params.append(a[1].upper())
 
-    # Generate images
+    # Get starting image number and determine max digits needed
+    start_num = 1
+    existing_max_digits = 1
+    if "E" in params and os.path.exists(OUTPUT_CSV):
+        with open(OUTPUT_CSV, 'r') as f:
+            lines = f.readlines()
+            if lines:
+                last_num = int(lines[-1].split('.')[0])
+                start_num = last_num + 1
+                existing_max_digits = len(str(last_num))
+
+    # Calculate required digits based on both existing and new numbers
     num_images = int(args[1])
-    name_length = len(str(num_images))  # For zero-padding
+    final_num = start_num + num_images - 1
+    name_length = max(existing_max_digits, len(str(final_num)))
+
     data = []
 
-    for i in range(1, num_images + 1):
+    # Read existing data if extending and update padding if needed
+    if "E" in params and os.path.exists(OUTPUT_CSV):
+        with open(OUTPUT_CSV, 'r') as f:
+            for line in f:
+                if line.strip():
+                    # Update padding of existing entries if necessary
+                    filename, captcha = line.strip().split(',')
+                    num = int(filename.split('.')[0])
+                    updated_filename = f"{num:0{name_length}}.png"
+                    data.append(f"{updated_filename},{captcha}")
+
+    # Generate new images
+    for i in range(start_num, start_num + num_images):
         image_id = f"{i:0{name_length}}"
         captcha_string = generate_captcha(image_id)
 
-        if captcha_string:  # Only add if the image generation succeeded
+        if captcha_string:
             data.append(f"{image_id}.png,{captcha_string}")
 
     # Write mappings to CSV
