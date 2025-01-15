@@ -41,6 +41,9 @@ class Captcha_Text_Dataset(Dataset):
         self.captcha_dir = captcha_dir
         self.transform = transform
 
+        # Store the keys in a list for indexing
+        self.keys = list(self.data.keys())
+
         # hashmap for char to index of a given alphanumeric char
         # Helps in conversion to tensor
         self.char_map = {char: idx for idx, char in enumerate(string.ascii_letters + string.digits)}
@@ -48,19 +51,18 @@ class Captcha_Text_Dataset(Dataset):
         self.max_seq_len = 8
 
 
-    # Return the number of captchas in the dataset
+
     def __len__(self):
         return len(self.data)
 
 
-    # Given a name of a captcha return the tensor of the image and a tensor of the string it represents
-    def __getitem__(self, key):
-        cap_name = key # the name of the image file
-        cap_code = self.data[key] # The string represented in the image
-
+    def __getitem__(self, idx):
+        # Use the stored keys to get the correct key for the data dictionary
+        cap_name = self.keys[idx]
+        cap_code = self.data[cap_name]
         # Load and transform image
 
-        cap_path = os.path.join(self.captcha_dir,f"{cap_name:0{len(str(len(self.data)))}}.png")
+        cap_path = os.path.join(self.captcha_dir, f"{cap_name:0{len(str(len(self.data)))}}.png")
         cap = Image.open(cap_path).convert("L")  # Convert to grayscale
 
         # Convert image to tensor 
