@@ -142,13 +142,26 @@ dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 device = torch.device("cpu")
 model = Net(num_classes, hidden_dim, num_lstm_layers).to(device)
 
-criterion = nn.CrossEntropyLoss()
+
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+# Check if a saved model exists
+model_path = "captcha_recognition_model.pth"
+optimizer_path = "captcha_optimizer.pth"
+
+if os.path.exists(model_path):
+    print("Loading existing model...")
+    model.load_state_dict(torch.load(model_path))
+    if os.path.exists(optimizer_path):
+        print("Loading optimizer state...")
+        optimizer.load_state_dict(torch.load(optimizer_path))
+
+criterion = nn.CrossEntropyLoss()
 
 
 # ====================
 # Training Loop
 # ====================
+print("Beginning training")
 for epoch in range(num_epochs):
     model.train()
     total_loss = 0.0
@@ -178,10 +191,8 @@ for epoch in range(num_epochs):
     avg_loss = total_loss / len(dataloader)
     print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {avg_loss:.4f}")
 
-# Save the model's parameters (state_dict)
-torch.save(model.state_dict(), "captcha_recognition_model.pth")
-print("Model saved")
-
-#  LocalWords:  captchas
-
+# Save both model and optimizer states
+torch.save(model.state_dict(), model_path)
+torch.save(optimizer.state_dict(), optimizer_path)
+print("Model and optimizer states saved")
 
