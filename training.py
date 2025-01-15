@@ -7,6 +7,8 @@ import torch.nn as nn
 import torch.nn.functional as func
 import torch.optim as optim
 import string
+from helpers import read_csv, early_stop_check
+
 
 # ====================
 # Dataset Preparation
@@ -16,22 +18,6 @@ import string
 transform = transforms.Compose([
     transforms.ToTensor()
 ])
-
-# Used to read in the filenames and the string encoded in the captcha
-# Reads a 2-col csv into a hashmap where the first value is the key and the second is the value
-def read_csv(path):
-    hashMap = {}
-
-    with open(path, "r") as file:
-        for row in file.readlines():
-            items = row.split(",")
-            
-            key = int(items[0][:-4])
-            val = items[1][:-1]
-                
-            hashMap[key] = val
-
-    return hashMap
 
 
 class Captcha_Text_Dataset(Dataset):
@@ -196,15 +182,9 @@ for epoch in range(num_epochs):
 
     # Early stopping
     epoch_loss.append(avg_loss)
-    if len(epoch_loss) >= early_stop_threshhold:
-        early_stop = True
-        for i in range(-early_stop_threshhold, -1):
-            if abs(epoch_loss[i] - epoch_loss[i + 1]) > epsilon:
-                early_stop = False
-                break
-        if early_stop:
-            print("Model stagnation has reached the early stop threshold")
-            break
+    if early_stop_check(epoch_loss, early_stop_threshhold, epsilon):
+        print("Model stagnation has reached the early stop threshold")
+        break
 
     
     
