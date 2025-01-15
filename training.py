@@ -31,8 +31,6 @@ def read_csv(path):
                 
             hashMap[key] = val
 
-    print(hashMap)
-
     return hashMap
 
 
@@ -94,8 +92,11 @@ class Net(nn.Module):
         # applies second convolutional layer
         self.conv2 = nn.Conv2d(32, 64, 3)
 
+        # Adaptive pooling layer to fix output width
+        self.adaptive_pool = nn.AdaptiveAvgPool2d((None, 8))
+
         # Applies LSTM layer 
-        self.lstm = nn.LSTM(input_size=1344, hidden_size=hidden_dim, num_layers=num_lstm_layers, batch_first=True)
+        self.lstm = nn.LSTM(input_size=512, hidden_size=hidden_dim, num_layers=num_lstm_layers, batch_first=True)
 
         # Applies Fully Connected layer 
         self.fc = nn.Linear(hidden_dim, num_classes)
@@ -104,7 +105,7 @@ class Net(nn.Module):
         # pool the results of conv1 -> pool the results of conv2
         x = self.pool(func.relu(self.conv1(x)))
         x = self.pool(func.relu(self.conv2(x)))
-
+        x = self.adaptive_pool(x)
         
         batch_size, channels, height, width = x.size()
         # TODO: figure out what view is
@@ -143,6 +144,7 @@ dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 # Model, Loss, and Optimizer
 device = torch.device("cpu")
 model = Net(num_classes, hidden_dim, num_lstm_layers).to(device)
+
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
