@@ -1,4 +1,3 @@
-from math import inf
 import os
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -126,11 +125,12 @@ class Net(nn.Module):
 # Total number of characters
 num_classes = len(string.ascii_letters + string.digits)
 hidden_dim = 128
-num_lstm_layers = 2
-learning_rate = 0.1
+num_lstm_layers = 8
+learning_rate = 0.05
 num_epochs = 10
 batch_size = 16
-early_stop_threshhold = 3
+early_stop_threshhold = 4
+epsilon = 1e-5
 
 # File paths
 csv_file = "Training_Data_Mappings.csv"
@@ -198,13 +198,14 @@ for epoch in range(num_epochs):
     epoch_loss.append(avg_loss)
     if len(epoch_loss) >= early_stop_threshhold:
         early_stop = True
-        for i in range(-early_stop_threshhold, -1, -1):
-            if epoch_loss[i] != epoch_loss[i + 1]:
+        for i in range(-early_stop_threshhold, -1):
+            if abs(epoch_loss[i] - epoch_loss[i + 1]) > epsilon:
                 early_stop = False
+                break
         if early_stop:
             print("Model stagnation has reached the early stop threshold")
             break
-            
+
     
     
 # Save both model and optimizer states
