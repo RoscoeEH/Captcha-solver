@@ -43,8 +43,7 @@ class Captcha_Text_Dataset(Dataset):
 
         # hashmap for char to index of a given alphanumeric char
         # Helps in conversion to tensor
-        # idx + 1 allows for 0 to be used padding
-        self.char_map = {char: idx + 1 for idx, char in enumerate(string.ascii_letters + string.digits)}
+        self.char_map = {char: idx for idx, char in enumerate(string.ascii_letters + string.digits)}
         # This is used to pad captchas the max length
         self.max_seq_len = 8
 
@@ -70,14 +69,11 @@ class Captcha_Text_Dataset(Dataset):
 
         # Convert cap_code to integer sequence
         cap_code_seq = [self.char_map[char] for char in cap_code] 
+        cap_code_seq += [-100] * (self.max_seq_len - len(cap_code_seq))
+        
+        return cap, torch.tensor(cap_code_seq, dtype=torch.long)
 
         
-        # Pads cap_code_seq in self.max_seq_len
-        cap_code_seq += [0] * (self.max_seq_len - len(cap_code_seq))
-
-        return cap, torch.tensor(cap_code_seq, dtype=torch.uint8)
-
-
 ############
 # Neural Net
 ############
@@ -157,16 +153,18 @@ for epoch in range(num_epochs):
 
     for images, labels in dataloader:
         images = images.to(device)
-        
         labels = labels.to(device)
+
+        outputs = model(images)
+        batch_size, seq_len, num_classes = outputs.shape
         
-        # Forward pass
-        outputs = model(images)  # Shape: (batch, num_classes, seq_len)
-        batch_size, seq_len, num_classes = outputs.shape 
-        outputs = outputs.view(-1, num_classes)
-        labels = labels.view(-1)
-        # Reshape labels to match CrossEntropyLoss input requirements
+        # Reshape outputs and labels
+        outputs = outputs.reshape(-1, num_classes)
+        labels = labels.reshape(-1)
+        
+        # Only compute loss on non-padding elements
         loss = criterion(outputs, labels)
+                
         
         # Backward pass
         optimizer.zero_grad()
