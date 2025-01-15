@@ -126,7 +126,7 @@ class Net(nn.Module):
 num_classes = len(string.ascii_letters + string.digits)
 hidden_dim = 128
 num_lstm_layers = 2
-learning_rate = 0.001
+learning_rate = 0.01
 num_epochs = 10
 batch_size = 16
 
