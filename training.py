@@ -96,7 +96,7 @@ class Net(nn.Module):
         self.adaptive_pool = nn.AdaptiveAvgPool2d((None, 8))
 
         # Applies LSTM layer 
-        self.lstm = nn.LSTM(input_size=512, hidden_size=hidden_dim, num_layers=num_lstm_layers, batch_first=True)
+        self.lstm = nn.LSTM(input_size=1344, hidden_size=hidden_dim, num_layers=num_lstm_layers, batch_first=True)
 
         # Applies Fully Connected layer 
         self.fc = nn.Linear(hidden_dim, num_classes)
@@ -108,12 +108,11 @@ class Net(nn.Module):
         x = self.adaptive_pool(x)
         
         batch_size, channels, height, width = x.size()
-        # TODO: figure out what view is
+
         x = x.view(batch_size, width, channels * height)
 
-        
         x, _ = self.lstm(x)
-
+        
         x = self.fc(x)
         
         return x
