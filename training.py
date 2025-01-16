@@ -110,13 +110,14 @@ class Net(nn.Module):
 
 # Total number of characters
 num_classes = len(string.ascii_letters + string.digits)
-hidden_dim = 128
-num_lstm_layers = 8
-learning_rate = 0.05
-num_epochs = 10
-batch_size = 16
-early_stop_threshhold = 4
-epsilon = 1e-5
+hidden_dim = 256
+num_lstm_layers = 4
+learning_rate = 0.001
+num_epochs = 50
+batch_size = 64
+early_stop_threshhold = 10
+epsilon = 1e-4
+
 
 # File paths
 csv_file = "Training_Data_Mappings.csv"
@@ -130,21 +131,31 @@ dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 device = torch.device("cpu")
 model = Net(num_classes, hidden_dim, num_lstm_layers).to(device)
 
-
-optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+optimizer = optim.Adam(model.parameters(), 
+                      lr=learning_rate,
+                      weight_decay=1e-5)
 # Check if a saved model exists
 model_path = "captcha_recognition_model.pth"
 optimizer_path = "captcha_optimizer.pth"
 
-if os.path.exists(model_path):
-    print("Loading existing model...")
-    model.load_state_dict(torch.load(model_path))
-    if os.path.exists(optimizer_path):
-        print("Loading optimizer state...")
-        optimizer.load_state_dict(torch.load(optimizer_path))
 
-criterion = nn.CrossEntropyLoss()
+# Load the previous iteration
+# if os.path.exists(model_path):
+#     print("Loading existing model...")
+#     model.load_state_dict(torch.load(model_path))
+#     if os.path.exists(optimizer_path):
+#         print("Loading optimizer state...")
+#         optimizer.load_state_dict(torch.load(optimizer_path))
 
+criterion = nn.CrossEntropyLoss(ignore_index=-100, reduction='mean')
+
+
+scheduler = optim.lr_scheduler.ReduceLROnPlateau(
+    optimizer, 
+    mode='min', 
+    factor=0.5, 
+    patience=3
+)
 
 # ====================
 # Training Loop
@@ -158,6 +169,9 @@ for epoch in range(num_epochs):
     for images, labels in dataloader:
         images = images.to(device)
         labels = labels.to(device)
+
+        # Add gradient clipping
+        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
 
         outputs = model(images)
         batch_size, seq_len, num_classes = outputs.shape
@@ -178,7 +192,11 @@ for epoch in range(num_epochs):
         total_loss += loss.item()
 
     avg_loss = total_loss / len(dataloader)
-    print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {avg_loss:.4f}")
+    current_lr = optimizer.param_groups[0]['lr']
+    print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {avg_loss:.4f}, Learning Rate: {current_lr:.6f}")
+
+    # Update learning rate based on loss
+    scheduler.step(avg_loss)
 
     # Early stopping
     epoch_loss.append(avg_loss)
