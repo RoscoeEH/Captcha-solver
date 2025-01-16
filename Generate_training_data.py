@@ -44,23 +44,30 @@ if __name__ == "__main__":
         for a in args[2:]:
             params.append(a[1].upper())
 
-    # Get starting image number and determine max digits needed
-    start_num = 1
-    existing_max_digits = 1
-    if "E" in params and os.path.exists(OUTPUT_CSV):
-        with open(OUTPUT_CSV, 'r') as f:
-            lines = f.readlines()
-            if lines:
-                last_num = int(lines[-1].split('.')[0])
-                start_num = last_num + 1
-                existing_max_digits = len(str(last_num))
+    # Clear directory and CSV if not extending
+    if "E" not in params:
+        if os.path.exists(IMAGE_DIR):
+            shutil.rmtree(IMAGE_DIR)
+        # Reset CSV file by emptying data list
+        data = []
+        start_num = 1
+        existing_max_digits = 1
+    else:
+        # Get starting image number and determine max digits needed
+        start_num = 1
+        existing_max_digits = 1
+        if os.path.exists(OUTPUT_CSV):
+            with open(OUTPUT_CSV, 'r') as f:
+                lines = f.readlines()
+                if lines:
+                    last_num = int(lines[-1].split('.')[0])
+                    start_num = last_num + 1
+                    existing_max_digits = len(str(last_num))
 
     # Calculate required digits based on both existing and new numbers
     num_images = int(args[1])
     final_num = start_num + num_images - 1
     name_length = max(existing_max_digits, len(str(final_num)))
-
-    data = []
 
     # Read existing data if extending and update padding if needed
     if "E" in params and os.path.exists(OUTPUT_CSV):
