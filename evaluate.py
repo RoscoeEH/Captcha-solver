@@ -1,5 +1,5 @@
 import torch
-from training import Net, Captcha_Text_Dataset, transform
+from setup import Net, Captcha_Text_Dataset, transform
 import string
 from torch.utils.data import DataLoader
 import sys
