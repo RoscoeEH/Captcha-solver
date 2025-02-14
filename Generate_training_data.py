@@ -6,14 +6,12 @@ import shutil
 import sys
 
 # Constants
-IMAGE_DIR = "Training_Data"
-OUTPUT_CSV = "Training_Data_Mappings.csv"
 IMAGE_WIDTH = 280
 IMAGE_HEIGHT = 90
 
-def generate_captcha(image_name):
+def generate_captcha(image_name, image_dir):
     """Generate a random CAPTCHA image and save it to IMAGE_DIR."""
-    os.makedirs(IMAGE_DIR, exist_ok=True)
+    os.makedirs(image_dir, exist_ok=True)
 
     # Generate a random alphanumeric string
     num_chars = random.randint(5, 8)
@@ -22,7 +20,7 @@ def generate_captcha(image_name):
 
     # Generate and save the image
     image = ImageCaptcha(width=IMAGE_WIDTH, height=IMAGE_HEIGHT)
-    image_path = os.path.join(IMAGE_DIR, f"{image_name}.png")
+    image_path = os.path.join(image_dir, f"{image_name}.png")
 
     try:
         image.write(captcha_string, image_path)
@@ -44,25 +42,34 @@ if __name__ == "__main__":
         for a in args[2:]:
             params.append(a[1].upper())
 
+    image_dir = "Training_Data"
+    output_csv = "Training_Data_Mappings.csv"
+    # Generate test data vs training data
+    if "T" in params:
+        image_dir = "Test_Data"
+        output_csv = "Test_Data_Mappings.csv"
+
+    data = []
     # Clear directory and CSV if not extending
     if "E" not in params:
-        if os.path.exists(IMAGE_DIR):
-            shutil.rmtree(IMAGE_DIR)
+        if os.path.exists(image_dir):
+            shutil.rmtree(image_dir)
         # Reset CSV file by emptying data list
-        data = []
         start_num = 1
         existing_max_digits = 1
     else:
         # Get starting image number and determine max digits needed
         start_num = 1
         existing_max_digits = 1
-        if os.path.exists(OUTPUT_CSV):
-            with open(OUTPUT_CSV, 'r') as f:
+        if os.path.exists(output_csv):
+            with open(output_csv, 'r') as f:
                 lines = f.readlines()
                 if lines:
                     last_num = int(lines[-1].split('.')[0])
                     start_num = last_num + 1
                     existing_max_digits = len(str(last_num))
+
+    
 
     # Calculate required digits based on both existing and new numbers
     num_images = int(args[1])
@@ -70,8 +77,8 @@ if __name__ == "__main__":
     name_length = max(existing_max_digits, len(str(final_num)))
 
     # Read existing data if extending and update padding if needed
-    if "E" in params and os.path.exists(OUTPUT_CSV):
-        with open(OUTPUT_CSV, 'r') as f:
+    if "E" in params and os.path.exists(output_csv):
+        with open(output_csv, 'r') as f:
             for line in f:
                 if line.strip():
                     # Update padding of existing entries if necessary
@@ -83,13 +90,13 @@ if __name__ == "__main__":
     # Generate new images
     for i in range(start_num, start_num + num_images):
         image_id = f"{i:0{name_length}}"
-        captcha_string = generate_captcha(image_id)
+        captcha_string = generate_captcha(image_id, image_dir)
 
         if captcha_string:
             data.append(f"{image_id}.png,{captcha_string}")
 
     # Write mappings to CSV
-    with open(OUTPUT_CSV, 'w') as f:
+    with open(output_csv, 'w') as f:
         f.write("\n".join(data) + "\n")
 
        
