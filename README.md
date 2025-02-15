@@ -44,3 +44,26 @@ This project implements a CAPTCHA recognition system using a Convolutional Neura
 
 The model is trained to output a sequence of character predictions for each image. CTC loss is used to train the network because it allows the model to predict sequences of varying lengths without needing to align each output to a specific character.
 
+## Evaluation
+
+The model's performance can be evaluated using the following metrics:
+
+1. **Character-Level Accuracy**: The percentage of individual characters correctly predicted across all CAPTCHAs.
+2. **Full-String Accuracy**: The percentage of CAPTCHA strings that are perfectly predicted (all characters correct).
+
+To evaluate the model on your test data, use the evaluation script:
+```bash
+python evaluate_model.py <test_data_path>
+```
+
+The script will load the trained model from `captcha_recognition_model.pth` and output:
+- Overall accuracy metrics
+- Sample predictions with their corresponding ground truth labels
+
+
+The model's performance can vary significantly based on:
+- Quality and quantity of training data
+- Complexity of the CAPTCHA patterns
+- Model hyperparameters
+- Training duration
+
