@@ -69,34 +69,44 @@ class Captcha_Text_Dataset(Dataset):
 class Net(nn.Module):
     def __init__(self, num_classes, hidden_dim, num_lstm_layers):
         super().__init__()
-        # Applies 2D convolution layer 
-        self.conv1 = nn.Conv2d(1, 32, 3) # (1 for grayscale, 32 filters applied, 3x3 filters)
-        # applies max pooling to the layers 
+        # Deeper CNN architecture
+        self.conv1 = nn.Conv2d(1, 32, 3, padding=1)
+        self.bn1 = nn.BatchNorm2d(32)
+        self.conv2 = nn.Conv2d(32, 64, 3, padding=1)
+        self.bn2 = nn.BatchNorm2d(64)
+        self.conv3 = nn.Conv2d(64, 128, 3, padding=1)
+        self.bn3 = nn.BatchNorm2d(128)
+        
         self.pool = nn.MaxPool2d(2, 2)
-        # applies second convolutional layer
-        self.conv2 = nn.Conv2d(32, 64, 3)
-
-        # Adaptive pooling layer to fix output width
+        self.dropout = nn.Dropout(0.2)
         self.adaptive_pool = nn.AdaptiveAvgPool2d((None, 8))
-
-        # Applies LSTM layer 
-        self.lstm = nn.LSTM(input_size=1344, hidden_size=hidden_dim, num_layers=num_lstm_layers, batch_first=True)
-
-        # Applies Fully Connected layer 
-        self.fc = nn.Linear(hidden_dim, num_classes)
+        
+        # Bidirectional LSTM for better sequence modeling
+        self.lstm = nn.LSTM(
+            input_size=2048,  # Adjusted for new conv architecture
+            hidden_size=hidden_dim,
+            num_layers=num_lstm_layers,
+            batch_first=True,
+            bidirectional=True,
+            dropout=0.2 if num_lstm_layers > 1 else 0
+        )
+        
+        # Account for bidirectional in final layer
+        self.fc = nn.Linear(hidden_dim * 2, num_classes)
 
     def forward(self, x):
-        # pool the results of conv1 -> pool the results of conv2
-        x = self.pool(func.relu(self.conv1(x)))
-        x = self.pool(func.relu(self.conv2(x)))
+        # Enhanced forward pass with regularization
+        x = self.pool(func.relu(self.bn1(self.conv1(x))))
+        x = self.dropout(x)
+        x = self.pool(func.relu(self.bn2(self.conv2(x))))
+        x = self.dropout(x)
+        x = self.pool(func.relu(self.bn3(self.conv3(x))))
+        x = self.dropout(x)
+        
         x = self.adaptive_pool(x)
-        
         batch_size, channels, height, width = x.size()
-
         x = x.view(batch_size, width, channels * height)
-
+        
         x, _ = self.lstm(x)
-        
         x = self.fc(x)
-        
         return x

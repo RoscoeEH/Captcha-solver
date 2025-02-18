@@ -9,8 +9,8 @@ import os
 
 
 
-def train_model(hidden_dim=256, num_lstm_layers=4, learning_rate=0.001,
-          num_epochs=50, batch_size=64, early_stop_threshhold=10,
+def train_model(hidden_dim=512, num_lstm_layers=2, learning_rate=0.0005,
+          num_epochs=100, batch_size=32, early_stop_threshhold=15,
           training_csv_file="Training_Data_Mappings.csv",
           training_data_dir="Training_Data"):
     
