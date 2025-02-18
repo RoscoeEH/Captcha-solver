@@ -23,7 +23,7 @@ def train_model(hidden_dim=512, num_lstm_layers=2, learning_rate=0.0005,
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     # Model, Loss, and Optimizer
-    print("Training on GPU..." if torch.cuda.is_available() else "Training on CPU...")
+    
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = Net(num_classes, hidden_dim, num_lstm_layers).to(device)
 
@@ -56,7 +56,7 @@ def train_model(hidden_dim=512, num_lstm_layers=2, learning_rate=0.0005,
     # ====================
     # Training Loop
     # ====================
-    print("Training...")
+    print("Training on GPU..." if torch.cuda.is_available() else "Training on CPU...")
     epoch_loss = []
     for epoch in range(num_epochs):
         model.train()

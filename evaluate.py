@@ -4,15 +4,12 @@ import string
 from torch.utils.data import DataLoader
 import sys
 
-def evaluate_model():
+def evaluate_model(hidden_dim=512, num_lstm_layers=2, batch_size=32):
     # Setup parameters
     num_classes = len(string.ascii_letters + string.digits)
-    hidden_dim = 256
-    num_lstm_layers = 4
-    batch_size = 32
 
     # Setup device
-    print("Running on GPU" if torch.cuda.is_available() else "Running on CPU")
+    print("Evaluating on GPU" if torch.cuda.is_available() else "Evaluating on CPU")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     # Initialize model
