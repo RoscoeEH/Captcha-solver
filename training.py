@@ -5,35 +5,25 @@ import torch.optim as optim
 import string
 from helpers import early_stop_check
 from setup import Net, Captcha_Text_Dataset, transform
+import os
 
 
 
-def train(): 
-    # ====================
-    # Training Setup
-    # ====================
-    # Hyperparameters
-
+def train_model(hidden_dim=256, num_lstm_layers=4, learning_rate=0.001,
+          num_epochs=50, batch_size=64, early_stop_threshhold=10,
+          training_csv_file="Training_Data_Mappings.csv",
+          training_data_dir="Training_Data"):
+    
     # Total number of characters
     num_classes = len(string.ascii_letters + string.digits)
-    hidden_dim = 256
-    num_lstm_layers = 4
-    learning_rate = 0.001
-    num_epochs = 50
-    batch_size = 64
-    early_stop_threshhold = 10
     epsilon = 1e-4
 
-
-    # File paths
-    csv_file = "Training_Data_Mappings.csv"
-    cap_dir = "Training_Data"
-
     # DataLoader
-    dataset = Captcha_Text_Dataset(labels_csv=csv_file, captcha_dir=cap_dir, transform=transform)
+    dataset = Captcha_Text_Dataset(labels_csv=training_csv_file, captcha_dir=training_data_dir, transform=transform)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     # Model, Loss, and Optimizer
+    print("Training on GPU..." if torch.cuda.is_available() else "Training on CPU...")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = Net(num_classes, hidden_dim, num_lstm_layers).to(device)
 
@@ -46,12 +36,12 @@ def train():
 
 
     # Load the previous iteration
-    # if os.path.exists(model_path):
-    #     print("Loading existing model...")
-    #     model.load_state_dict(torch.load(model_path))
-    #     if os.path.exists(optimizer_path):
-    #         print("Loading optimizer state...")
-    #         optimizer.load_state_dict(torch.load(optimizer_path))
+    if os.path.exists(model_path):
+        print("Loading existing model...")
+        model.load_state_dict(torch.load(model_path))
+        if os.path.exists(optimizer_path):
+            print("Loading optimizer state...")
+            optimizer.load_state_dict(torch.load(optimizer_path))
 
     criterion = nn.CrossEntropyLoss(ignore_index=-100, reduction='mean')
 
@@ -118,4 +108,4 @@ def train():
     print("Model and optimizer states saved")
 
 if __name__ == "__main__":
-    train()
+    train_model()

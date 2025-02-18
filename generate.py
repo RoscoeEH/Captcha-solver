@@ -30,28 +30,19 @@ def generate_captcha(image_name, image_dir):
 
     return captcha_string
 
-if __name__ == "__main__":
-    # Argument parsing
-    args = sys.argv
-    if len(args) < 2 or not args[1].isdigit():
-        print("Incorrect arguments")
-        sys.exit(1)
 
-    params = []
-    if len(args) > 2:
-        for a in args[2:]:
-            params.append(a[1].upper())
-
+def generate_training_data(count=100_000, flags=[]):
+    
     image_dir = "Training_Data"
     output_csv = "Training_Data_Mappings.csv"
     # Generate test data vs training data
-    if "T" in params:
+    if "T" in flags:
         image_dir = "Test_Data"
         output_csv = "Test_Data_Mappings.csv"
 
     data = []
     # Clear directory and CSV if not extending
-    if "E" not in params:
+    if "E" not in flags:
         if os.path.exists(image_dir):
             shutil.rmtree(image_dir)
         # Reset CSV file by emptying data list
@@ -72,12 +63,11 @@ if __name__ == "__main__":
     
 
     # Calculate required digits based on both existing and new numbers
-    num_images = int(args[1])
-    final_num = start_num + num_images - 1
+    final_num = start_num + count - 1
     name_length = max(existing_max_digits, len(str(final_num)))
 
     # Read existing data if extending and update padding if needed
-    if "E" in params and os.path.exists(output_csv):
+    if "E" in flags and os.path.exists(output_csv):
         with open(output_csv, 'r') as f:
             for line in f:
                 if line.strip():
@@ -88,7 +78,7 @@ if __name__ == "__main__":
                     data.append(f"{updated_filename},{captcha}")
 
     # Generate new images
-    for i in range(start_num, start_num + num_images):
+    for i in range(start_num, start_num + count):
         image_id = f"{i:0{name_length}}"
         captcha_string = generate_captcha(image_id, image_dir)
 
@@ -99,4 +89,20 @@ if __name__ == "__main__":
     with open(output_csv, 'w') as f:
         f.write("\n".join(data) + "\n")
 
-       
+
+        
+if __name__ == "__main__":
+    # Argument parsing
+    args = sys.argv
+    if len(args) < 2 or not args[1].isdigit():
+        print("Incorrect arguments")
+        sys.exit(1)
+
+    params = []
+    if len(args) > 2:
+        for a in args[2:]:
+            params.append(a[1].upper())
+
+    generate_training_data(count=int(args[1]), flags=params)
+
+           
