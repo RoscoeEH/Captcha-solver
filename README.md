@@ -5,33 +5,36 @@ This project implements a CAPTCHA recognition system using a Convolutional Neura
 ## Dependencies
 
 - Python 3.9.6
-- PyTorch
+- PyTorch 2.2.2
 - Pandas
 - Pillow
-- torchvision
+- torchvision 0.17.2
 - captcha
 
 ## Training
 
 1. **Generate CAPTCHA Data**:
-   The `captcha_generator.py` script generates CAPTCHA images and labels. Run the script with the number of images you want to generate:
+   The `generate.py` script generates CAPTCHA images and labels. Run the script with the number of images you want to generate:
    
    ```bash
-   python captcha_generator.py <num_images>
+   python generate.py <num_images>
    ```
    
-   This will create a folder called `Training_Data` with images and a CSV file `Training_Data_Mappings.csv` containing the corresponding labels.
+   This will create a folder called `Training_Data` with images and a CSV file `Training_Data_Mappings.csv` containing the corresponding labels. 
+   
+   The generate script can be run with the following flags:
+   - "-E" - extends the dataset
+   - "-T" - data with the names "Test_Data" and :"Test_Data_Mappings.csv"
 
 2. **Train the Model**:
    Use `train_model.py` to train the CAPTCHA recognition model. It will load the images from `Training_Data` and labels from `Training_Data_Mappings.csv`. The model is a CNN followed by an LSTM layer, which is trained using CTC loss.
 
    Run the training script:
    ```bash
-   python train_model.py <num_epochs> <batch_size> <learning_rate>
+   python training.py 
    ```
-   - `<num_epochs>`: Number of epochs for training.
-   - `<batch_size>`: The batch size for training.
-   - `<learning_rate>`: The learning rate for optimization.
+   
+   The training parameters are in the file "model_parameters.py"
 
 3. **Model Saving**:
    After training, the model will be saved automatically in the current directory as `captcha_recognition_model.pth`.
@@ -53,8 +56,9 @@ The model's performance can be evaluated using the following metrics:
 
 To evaluate the model on your test data, use the evaluation script:
 ```bash
-python evaluate_model.py <test_data_path>
+python evaluate.py
 ```
+This can be run with the flag "-V" to view each captcha an attempt from the model.
 
 The script will load the trained model from `captcha_recognition_model.pth` and output:
 - Overall accuracy metrics
