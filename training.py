@@ -9,7 +9,6 @@ import os
 from model_parameters import NUM_CLASSES, HIDDEN_DIM, NUM_LSTM_LAYERS, LEARNING_RATE, NUM_EPOCHS, BATCH_SIZE, EARLY_STOP_THRESHHOLD, EPSILON
 
 
-
 def train_model(training_csv_file="Training_Data_Mappings.csv",
           training_data_dir="Training_Data"):
 
@@ -65,10 +64,10 @@ def train_model(training_csv_file="Training_Data_Mappings.csv",
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
 
             outputs = model(images)
-            BATCH_SIZE, seq_len, NUM_CLASSES = outputs.shape
+            batch_size, seq_len, num_classes = outputs.shape
 
             # Reshape outputs and labels
-            outputs = outputs.reshape(-1, NUM_CLASSES)
+            outputs = outputs.reshape(-1, num_classes)
             labels = labels.reshape(-1)
 
             # Only compute loss on non-padding elements
