@@ -1,0 +1,10 @@
+import string
+
+NUM_CLASSES = len(string.ascii_letters + string.digits)
+HIDDEN_DIM = 512
+NUM_LSTM_LAYERS = 2
+LEARNING_RATE = 0.0005
+NUM_EPOCHS = 100
+BATCH_SIZE = 32
+EARLY_STOP_THRESHHOLD = 15
+EPSILON = 1e-4

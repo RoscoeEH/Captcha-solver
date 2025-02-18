@@ -3,17 +3,15 @@ from setup import Net, Captcha_Text_Dataset, transform
 import string
 from torch.utils.data import DataLoader
 import sys
+from model_parameters import HIDDEN_DIM, NUM_LSTM_LAYERS, BATCH_SIZE, NUM_CLASSES
 
-def evaluate_model(hidden_dim=512, num_lstm_layers=2, batch_size=32):
-    # Setup parameters
-    num_classes = len(string.ascii_letters + string.digits)
-
+def evaluate_model():
     # Setup device
     print("Evaluating on GPU" if torch.cuda.is_available() else "Evaluating on CPU")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     # Initialize model
-    model = Net(num_classes, hidden_dim, num_lstm_layers).to(device)
+    model = Net(NUM_CLASSES, HIDDEN_DIM, NUM_LSTM_LAYERS).to(device)
     
     # Load the saved model
     model.load_state_dict(torch.load("captcha_recognition_model.pth"))
@@ -25,7 +23,7 @@ def evaluate_model(hidden_dim=512, num_lstm_layers=2, batch_size=32):
         captcha_dir="Test_Data",
         transform=transform,
     )
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+    test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
     
     # Create reverse char map for converting indices back to characters
     char_list = string.ascii_letters + string.digits
