@@ -29,8 +29,10 @@ def evaluate_model():
     char_list = string.ascii_letters + string.digits
     idx_to_char = {idx: char for idx, char in enumerate(char_list)}
     
-    correct = 0
-    total = 0
+    correct_strings = 0
+    total_strings = 0
+    correct_chars = 0
+    total_chars = 0
     
     print("Starting evaluation...")
     with torch.no_grad():  # No need to track gradients for evaluation
@@ -41,22 +43,33 @@ def evaluate_model():
             outputs = model(images)
             predictions = torch.argmax(outputs, dim=2)
             
-            # Convert predictions to text
+            # Convert predictions to text and calculate accuracies
             for pred, label in zip(predictions, labels):
                 pred_text = ''.join([idx_to_char[idx.item()] for idx in pred if idx.item() >= 0])
                 true_text = ''.join([idx_to_char[idx.item()] for idx in label if idx.item() >= 0])
                 
+                # Full string accuracy
                 if pred_text == true_text:
-                    correct += 1
-                total += 1
+                    correct_strings += 1
+                total_strings += 1
+
+                # Character-level accuracy
+                min_len = min(len(pred_text), len(true_text))
+                correct_chars += sum(1 for i in range(min_len) if pred_text[i] == true_text[i])
+                total_chars += len(true_text)
 
                 # Check for verbose output
                 if "-V" in sys.argv:
                     print(f"Predicted: {pred_text}, Actual: {true_text}")
     
-    accuracy = (correct / total) * 100
-    print(f"\nAccuracy: {accuracy:.2f}%")
-    print(f"Correctly predicted {correct} out of {total} captchas")
+    string_accuracy = (correct_strings / total_strings) * 100
+    char_accuracy = (correct_chars / total_chars) * 100
+    
+    print("\nEvaluation Results:")
+    print(f"Full String Accuracy: {string_accuracy:.2f}%")
+    print(f"Character-Level Accuracy: {char_accuracy:.2f}%")
+    print(f"Correctly predicted {correct_strings} out of {total_strings} full strings")
+    print(f"Correctly predicted {correct_chars} out of {total_chars} characters")
 
 if __name__ == "__main__":
     evaluate_model() 
