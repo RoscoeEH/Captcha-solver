@@ -12,6 +12,10 @@ from model_parameters import NUM_CLASSES, HIDDEN_DIM, NUM_LSTM_LAYERS, LEARNING_
 def train_model(training_csv_file="Training_Data_Mappings.csv",
           training_data_dir="Training_Data"):
 
+    # At the start of train_model()
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
+
     # DataLoader
     dataset = Captcha_Text_Dataset(labels_csv=training_csv_file, captcha_dir=training_data_dir, transform=transform)
     dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
@@ -80,6 +84,9 @@ def train_model(training_csv_file="Training_Data_Mappings.csv",
             optimizer.step()
 
             total_loss += loss.item()
+
+            # After each iteration
+            torch.cuda.empty_cache()
 
         avg_loss = total_loss / len(dataloader)
         current_lr = optimizer.param_groups[0]['lr']

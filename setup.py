@@ -68,21 +68,23 @@ class Captcha_Text_Dataset(Dataset):
 class Net(nn.Module):
     def __init__(self, num_classes, hidden_dim, num_lstm_layers):
         super().__init__()
-        # Deeper CNN architecture
-        self.conv1 = nn.Conv2d(1, 32, 3, padding=1)
-        self.bn1 = nn.BatchNorm2d(32)
-        self.conv2 = nn.Conv2d(32, 64, 3, padding=1)
-        self.bn2 = nn.BatchNorm2d(64)
-        self.conv3 = nn.Conv2d(64, 128, 3, padding=1)
-        self.bn3 = nn.BatchNorm2d(128)
+        # Simplified CNN architecture with fewer channels
+        self.conv1 = nn.Conv2d(1, 16, 3, padding=1)  # Reduced from 32
+        self.bn1 = nn.BatchNorm2d(16)
+        self.conv2 = nn.Conv2d(16, 32, 3, padding=1)  # Reduced from 64
+        self.bn2 = nn.BatchNorm2d(32)
+        self.conv3 = nn.Conv2d(32, 64, 3, padding=1)  # Reduced from 128
+        self.bn3 = nn.BatchNorm2d(64)
         
         self.pool = nn.MaxPool2d(2, 2)
         self.dropout = nn.Dropout(0.2)
-        self.adaptive_pool = nn.AdaptiveAvgPool2d((None, 8))
+        self.adaptive_pool = nn.AdaptiveAvgPool2d((8, 8))  # Fixed size output
         
-        # Bidirectional LSTM for better sequence modeling
+        # Calculate LSTM input size based on CNN output
+        cnn_output_size = 64 * 8 * 8 // 8  # Channels * Height * Width / sequence length
+        
         self.lstm = nn.LSTM(
-            input_size=2048,  # Adjusted for new conv architecture
+            input_size=cnn_output_size,
             hidden_size=hidden_dim,
             num_layers=num_lstm_layers,
             batch_first=True,
@@ -90,22 +92,32 @@ class Net(nn.Module):
             dropout=0.2 if num_lstm_layers > 1 else 0
         )
         
-        # Account for bidirectional in final layer
         self.fc = nn.Linear(hidden_dim * 2, num_classes)
 
     def forward(self, x):
-        # Enhanced forward pass with regularization
+        # CNN layers
         x = self.pool(func.relu(self.bn1(self.conv1(x))))
         x = self.dropout(x)
         x = self.pool(func.relu(self.bn2(self.conv2(x))))
         x = self.dropout(x)
-        x = self.pool(func.relu(self.bn3(self.conv3(x))))
+        x = func.relu(self.bn3(self.conv3(x)))
         x = self.dropout(x)
         
+        # Fixed size output
         x = self.adaptive_pool(x)
         batch_size, channels, height, width = x.size()
-        x = x.view(batch_size, width, channels * height)
         
-        x, _ = self.lstm(x)
-        x = self.fc(x)
-        return x
+        # Reshape for LSTM - more explicit reshaping
+        x = x.permute(0, 3, 1, 2)  # [batch, width, channels, height]
+        x = x.contiguous().view(batch_size, width, channels * height)
+        
+        # LSTM and final layers
+        try:
+            self.lstm.flatten_parameters()
+            x, _ = self.lstm(x)
+            x = self.fc(x)
+            return x
+        except RuntimeError as e:
+            print(f"Error in LSTM forward pass: {e}")
+            print(f"Input shape to LSTM: {x.shape}")
+            raise
