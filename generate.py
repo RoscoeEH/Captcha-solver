@@ -4,6 +4,7 @@ import string
 import os
 import shutil
 import sys
+import multiprocessing
 
 # Constants
 IMAGE_WIDTH = 280
@@ -29,6 +30,14 @@ def generate_captcha(image_name, image_dir):
         return None
 
     return captcha_string
+
+# Used for parallel processing
+def add_captcha(args):
+    x, name_length, image_dir = args
+    image_id = f"{x:0{name_length}}"
+    captcha_string = generate_captcha(image_id, image_dir)
+    if captcha_string:
+        return f"{image_id}.png,{captcha_string}"
 
 
 def generate_training_data(count=100_000, flags=[]):
@@ -76,14 +85,18 @@ def generate_training_data(count=100_000, flags=[]):
                     num = int(filename.split('.')[0])
                     updated_filename = f"{num:0{name_length}}.png"
                     data.append(f"{updated_filename},{captcha}")
+                    
+    data = []
 
-    # Generate new images
-    for i in range(start_num, start_num + count):
-        image_id = f"{i:0{name_length}}"
-        captcha_string = generate_captcha(image_id, image_dir)
-
-        if captcha_string:
-            data.append(f"{image_id}.png,{captcha_string}")
+    # Multi-threaded generation
+    num_cores = multiprocessing.cpu_count()
+    with multiprocessing.Pool(num_cores) as pool:
+        # Create list of argument tuples for each task
+        args_list = [(x, name_length, image_dir) for x in range(start_num, start_num + count)]
+        # Map the function with the arguments
+        results = pool.map(add_captcha, args_list)
+        # Filter out None results and store in data
+        data = [result for result in results if result is not None]
 
     # Write mappings to CSV
     with open(output_csv, 'w') as f:
