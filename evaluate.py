@@ -25,7 +25,7 @@ def evaluate_model(flags={}):
     test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
     
     # Create reverse char map for converting indices back to characters
-    char_list = string.ascii_letters + string.digits
+    char_list = string.ascii_letters + string.digits + '_'
     idx_to_char = {idx: char for idx, char in enumerate(char_list)}
     
     correct_strings = 0

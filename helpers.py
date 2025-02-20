@@ -3,19 +3,17 @@
 
 # Used to read in the filenames and the string encoded in the captcha
 # Reads a 2-col csv into a hashmap where the first value is the key and the second is the value
-def read_csv(path):
-    hashMap = {}
-
-    with open(path, "r") as file:
-        for row in file.readlines():
-            items = row.split(",")
-            
-            key = int(items[0][:-4])
-            val = items[1][:-1]
-                
-            hashMap[key] = val
-
-    return hashMap
+def read_csv(csv_file):
+    """Read CSV file and return dictionary of filename to captcha text mappings."""
+    data = {}
+    with open(csv_file, 'r') as f:
+        for line in f:
+            if line.strip():  # Skip empty lines
+                items = line.strip().split(',')
+                # Extract number from "captcha_X.png" format
+                key = items[0].replace('captcha_', '').replace('.png', '')
+                data[key] = items[1]
+    return data
 
 # Early stop data comparison
 def early_stop_check(data, threshhold, epsilon):

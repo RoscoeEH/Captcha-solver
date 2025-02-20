@@ -36,8 +36,8 @@ def generate_captcha(image_name, image_dir):
 
 # Used for parallel processing
 def add_captcha(args):
-    x, name_length, image_dir = args
-    image_id = f"{x:0{name_length}}"
+    x, _, image_dir = args 
+    image_id = f"captcha_{x}"
     captcha_string = generate_captcha(image_id, image_dir)
     if captcha_string:
         return f"{image_id}.png,{captcha_string}"
@@ -58,36 +58,24 @@ def generate_training_data(count=100_000, flags={}):
         if os.path.exists(image_dir):
             shutil.rmtree(image_dir)
         # Reset CSV file by emptying data list
-        start_num = 1
-        existing_max_digits = 1
+        start_num = 0
     else:
-        # Get starting image number and determine max digits needed
-        start_num = 1
-        existing_max_digits = 1
+        # Get starting image number
+        start_num = 0
         if os.path.exists(output_csv):
             with open(output_csv, 'r') as f:
                 lines = f.readlines()
                 if lines:
-                    last_num = int(lines[-1].split('.')[0])
+                    last_num = int(lines[-1].split('.')[0].replace('captcha_', ''))
                     start_num = last_num + 1
-                    existing_max_digits = len(str(last_num))
-
-    
-
-    # Calculate required digits based on both existing and new numbers
-    final_num = start_num + count - 1
-    name_length = max(existing_max_digits, len(str(final_num)))
 
     # Read existing data if extending and update padding if needed
     if "E" in flags and os.path.exists(output_csv):
         with open(output_csv, 'r') as f:
             for line in f:
                 if line.strip():
-                    # Update padding of existing entries if necessary
                     filename, captcha = line.strip().split(',')
-                    num = int(filename.split('.')[0])
-                    updated_filename = f"{num:0{name_length}}.png"
-                    data.append(f"{updated_filename},{captcha}")
+                    data.append(f"{filename},{captcha}")
                     
     data = []
 
@@ -95,7 +83,7 @@ def generate_training_data(count=100_000, flags={}):
     num_cores = multiprocessing.cpu_count()
     with multiprocessing.Pool(num_cores) as pool:
         # Create list of argument tuples for each task
-        args_list = [(x, name_length, image_dir) for x in range(start_num, start_num + count)]
+        args_list = [(x, None, image_dir) for x in range(start_num, start_num + count)]
         # Map the function with the arguments
         results = pool.map(add_captcha, args_list)
         # Filter out None results and store in data

@@ -17,7 +17,7 @@ NUM_CLASSES = len(string.ascii_letters + string.digits + '_')
 HIDDEN_DIM = 512
 NUM_LSTM_LAYERS = 2
 LEARNING_RATE = 0.0005
-NUM_EPOCHS = 100
+NUM_EPOCHS = 1
 BATCH_SIZE = 32
 EARLY_STOP_THRESHHOLD = 15
 EPSILON = 1e-4
@@ -56,11 +56,10 @@ class Captcha_Text_Dataset(Dataset):
         # Use the stored keys to get the correct key for the data dictionary
         cap_name = self.keys[idx]
         cap_code = self.data[cap_name]
-        # Load and transform image
-
-        cap_path = os.path.join(self.captcha_dir, f"{cap_name:0{len(str(len(self.data)))}}.png")
+        
+        cap_path = os.path.join(self.captcha_dir, f"captcha_{cap_name}.png")
         cap = Image.open(cap_path).convert("L")  # Convert to grayscale
-
+        
         # Convert image to tensor 
         if self.transform:
             cap = self.transform(cap)
