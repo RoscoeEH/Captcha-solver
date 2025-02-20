@@ -71,3 +71,5 @@ def evaluate_model(flags={}):
     print(f"Correctly predicted {correct_chars} out of {total_chars} characters")
 
 
+if __name__ == "__main__":
+    evaluate_model()
