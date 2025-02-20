@@ -40,7 +40,7 @@ def add_captcha(args):
         return f"{image_id}.png,{captcha_string}"
 
 
-def generate_training_data(count=100_000, flags=[]):
+def generate_training_data(count=100_000, flags={}):
     
     image_dir = "Training_Data"
     output_csv = "Training_Data_Mappings.csv"

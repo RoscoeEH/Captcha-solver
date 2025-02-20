@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 import sys
 from model_parameters import HIDDEN_DIM, NUM_LSTM_LAYERS, BATCH_SIZE, NUM_CLASSES
 
-def evaluate_model():
+def evaluate_model(flags={}):
     # Setup device
     print("Evaluating on GPU" if torch.cuda.is_available() else "Evaluating on CPU")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -35,7 +35,7 @@ def evaluate_model():
     total_chars = 0
     
     print("Starting evaluation...")
-    with torch.no_grad():  # No need to track gradients for evaluation
+    with torch.no_grad():
         for images, labels in test_loader:
             images = images.to(device)
             labels = labels.to(device)
@@ -59,7 +59,7 @@ def evaluate_model():
                 total_chars += len(true_text)
 
                 # Check for verbose output
-                if "-V" in sys.argv:
+                if "ev" in flags:
                     print(f"Predicted: {pred_text}, Actual: {true_text}")
     
     string_accuracy = (correct_strings / total_strings) * 100
@@ -71,5 +71,4 @@ def evaluate_model():
     print(f"Correctly predicted {correct_strings} out of {total_strings} full strings")
     print(f"Correctly predicted {correct_chars} out of {total_chars} characters")
 
-if __name__ == "__main__":
-    evaluate_model() 
+

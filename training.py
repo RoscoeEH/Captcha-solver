@@ -10,7 +10,7 @@ from model_parameters import NUM_CLASSES, HIDDEN_DIM, NUM_LSTM_LAYERS, LEARNING_
 
 
 def train_model(training_csv_file="Training_Data_Mappings.csv",
-          training_data_dir="Training_Data"):
+                training_data_dir="Training_Data", flags={}):
 
     # At the start of train_model()
     torch.backends.cudnn.benchmark = False
