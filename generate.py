@@ -19,6 +19,9 @@ def generate_captcha(image_name, image_dir):
     chars = string.ascii_letters + string.digits
     captcha_string = ''.join(random.choice(chars) for _ in range(num_chars))
 
+    # Pad the captcha string with underscores
+    captcha_string = captcha_string + '_' * (8 - len(captcha_string))
+
     # Generate and save the image
     image = ImageCaptcha(width=IMAGE_WIDTH, height=IMAGE_HEIGHT)
     image_path = os.path.join(image_dir, f"{image_name}.png")

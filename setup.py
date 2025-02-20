@@ -42,7 +42,7 @@ class Captcha_Text_Dataset(Dataset):
 
         # hashmap for char to index of a given alphanumeric char
         # Helps in conversion to tensor
-        self.char_map = {char: idx for idx, char in enumerate(string.ascii_letters + string.digits)}
+        self.char_map = {char: idx for idx, char in enumerate(string.ascii_letters + string.digits + '_')}
         # This is used to pad captchas the max length
         self.max_seq_len = 8
 
@@ -67,7 +67,7 @@ class Captcha_Text_Dataset(Dataset):
 
         # Convert cap_code to integer sequence
         cap_code_seq = [self.char_map[char] for char in cap_code] 
-        cap_code_seq += [-100] * (self.max_seq_len - len(cap_code_seq))
+        cap_code_seq += [self.char_map['_']] * (self.max_seq_len - len(cap_code_seq))
         
         return cap, torch.tensor(cap_code_seq, dtype=torch.long)
 
