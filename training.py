@@ -4,9 +4,10 @@ import torch.nn as nn
 import torch.optim as optim
 import string
 from helpers import early_stop_check
-from setup import Net, Captcha_Text_Dataset, transform
+from setup import Net, Captcha_Text_Dataset, transform, \
+NUM_CLASSES, HIDDEN_DIM, NUM_LSTM_LAYERS, LEARNING_RATE, \
+NUM_EPOCHS, BATCH_SIZE, EARLY_STOP_THRESHHOLD, EPSILON
 import os
-from model_parameters import NUM_CLASSES, HIDDEN_DIM, NUM_LSTM_LAYERS, LEARNING_RATE, NUM_EPOCHS, BATCH_SIZE, EARLY_STOP_THRESHHOLD, EPSILON
 
 
 def train_model(training_csv_file="Training_Data_Mappings.csv",

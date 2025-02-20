@@ -1,9 +1,8 @@
 import torch
-from setup import Net, Captcha_Text_Dataset, transform
+from setup import Net, Captcha_Text_Dataset, transform, HIDDEN_DIM, NUM_LSTM_LAYERS, BATCH_SIZE, NUM_CLASSES
 import string
 from torch.utils.data import DataLoader
 import sys
-from model_parameters import HIDDEN_DIM, NUM_LSTM_LAYERS, BATCH_SIZE, NUM_CLASSES
 
 def evaluate_model(flags={}):
     # Setup device

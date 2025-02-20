@@ -8,10 +8,21 @@ import torch.nn as nn
 import torch.nn.functional as func
 import string
 from helpers import read_csv
+import string
 
 # ====================
-# Dataset Preparation
-# ====================
+# Model Parameters
+
+NUM_CLASSES = len(string.ascii_letters + string.digits + '_')
+HIDDEN_DIM = 512
+NUM_LSTM_LAYERS = 2
+LEARNING_RATE = 0.0005
+NUM_EPOCHS = 100
+BATCH_SIZE = 32
+EARLY_STOP_THRESHHOLD = 15
+EPSILON = 1e-4
+
+
 
 # Define the transformation to convert images to tensors
 transform = transforms.Compose([
