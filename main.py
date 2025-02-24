@@ -1,6 +1,6 @@
 from evaluate import evaluate_model
 from training import train_model
-from generate import generate_training_data
+from generate import generate_training_data, generate_test_data
 import sys
 
 
@@ -57,8 +57,7 @@ if __name__ == "__main__":
     elif len(args) > 1 and args[0].lower() in ["e", "eval", "evaluate"]:
         # Evaluate the data
         if "eg" in flags:
-            flags["gt"] = 0
-            generate_training_data(count=1000, flags=flags)
+            generate_test_data(flags=flags)
         evaluate_model(flags)
 
     else:
@@ -69,8 +68,7 @@ if __name__ == "__main__":
 
         train_model(flags=flags)
 
-        flags["gt"] = 0
-        generate_training_data(count=1000, flags=flags)
+        generate_test_data(flags=flags)
         evaluate_model(flags)
         
 

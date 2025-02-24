@@ -43,17 +43,9 @@ def add_captcha(args):
         return f"{image_id}.png,{captcha_string}"
 
 
-def generate_training_data(count=100_000, flags={}):
-    
-    image_dir = "Training_Data"
-    output_csv = "Training_Data_Mappings.csv"
-    # Generate test data vs training data
-    if "T" in flags:
-        image_dir = "Test_Data"
-        output_csv = "Test_Data_Mappings.csv"
-
-    data = []
+def generate_data(count, image_dir, output_csv, flags):
     # Clear directory and CSV if not extending
+    data = []
     if "E" not in flags:
         if os.path.exists(image_dir):
             shutil.rmtree(image_dir)
@@ -76,8 +68,7 @@ def generate_training_data(count=100_000, flags={}):
                 if line.strip():
                     filename, captcha = line.strip().split(',')
                     data.append(f"{filename},{captcha}")
-                    
-    data = []
+                
 
     # Multi-threaded generation
     num_cores = multiprocessing.cpu_count()
@@ -93,6 +84,13 @@ def generate_training_data(count=100_000, flags={}):
     with open(output_csv, 'w') as f:
         f.write("\n".join(data) + "\n")
 
+
+        
+def generate_training_data(count=10_000, flags={}):
+    generate_data(count=count, image_dir="Training_Data", output_csv="Training_Data_Mapping", flags=flags)
+
+def generate_test_data(count=1000, flags={}):
+    generate_data(count=count, image_dir="Test_Data", output_csv="Training_Data_Mapping", flags=flags)
 
         
 if __name__ == "__main__":
