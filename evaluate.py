@@ -60,6 +60,9 @@ def evaluate_model(flags={}):
                 # Check for verbose output
                 if "ev" in flags:
                     print(f"Predicted: {pred_text}, Actual: {true_text}")
+                if "es" in flags:
+                    with open("evaluation_results.txt", "a") as f:
+                        f.write(f"Predicted: {pred_text}, Actual: {true_text}\n")
     
     string_accuracy = (correct_strings / total_strings) * 100
     char_accuracy = (correct_chars / total_chars) * 100
@@ -69,6 +72,17 @@ def evaluate_model(flags={}):
     print(f"Character-Level Accuracy: {char_accuracy:.2f}%")
     print(f"Correctly predicted {correct_strings} out of {total_strings} full strings")
     print(f"Correctly predicted {correct_chars} out of {total_chars} characters")
+
+    # Save evaluation results
+    if 'es' in flags:
+        with open("evaluation_results.txt", 'a') as f:
+            f.write("\n")
+            f.write(f"Evaluation Results:\n")
+            f.write(f"Full String Accuracy: {string_accuracy:.2f}%\n")
+            f.write(f"Character-Level Accuracy: {char_accuracy:.2f}%\n")
+            f.write(f"Correctly predicted {correct_strings} out of {total_strings} full strings\n")
+            f.write(f"Correctly predicted {correct_chars} out of {total_chars} characters\n")
+        print(f"\nEvaluation results saved to {save_path}")
 
 
 if __name__ == "__main__":

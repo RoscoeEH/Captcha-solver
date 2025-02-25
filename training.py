@@ -115,47 +115,6 @@ def train_model(training_csv_file="Training_Data_Mappings.csv",
     torch.save(optimizer.state_dict(), optimizer_path)
     print("Model and optimizer states saved")
 
-    # ====================
-    # Evaluation Loop
-    # ====================
-    model.eval()
-    total_loss = 0.0
-    correct = 0
-    total = 0
-
-    for images, labels in dataloader:
-        images = images.to(device)
-        labels = labels.to(device)
-
-        outputs = model(images)
-        batch_size, seq_len, num_classes = outputs.shape
-
-        # Reshape outputs and labels
-        outputs = outputs.reshape(-1, num_classes)
-        labels = labels.reshape(-1)
-
-        # Only compute loss on non-padding elements
-        loss = criterion(outputs, labels)
-
-        total_loss += loss.item()
-
-        # After each iteration
-        torch.cuda.empty_cache()
-
-        # Calculate accuracy
-        _, predicted = torch.max(outputs, 1)
-        total += labels.size(0)
-        correct += (predicted == labels).sum().item()
-
-    avg_loss = total_loss / len(dataloader)
-    accuracy = (correct / total) * 100
-    output_str = f"Evaluation - Loss: {avg_loss:.4f}, Accuracy: {accuracy:.2f}%"
-    
-    if "ev" in flags:
-        print(output_str)
-    if "es" in flags:
-        with open("evaluation_output.txt", "a") as f:
-            f.write(output_str + "\n")
 
 if __name__ == "__main__":
     train_model()

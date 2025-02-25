@@ -8,7 +8,7 @@ import sys
 def parse_flags(args):
     # Valid flag characters for each flag type
     valid_flags = {
-        'g': ['e'],
+        'g': ['e', 'r'],
         't': ['v', 's'],
         'e': ['v', 's']
     }
@@ -80,9 +80,9 @@ if __name__ == "__main__":
 
     else:
         # Run everything
-        
-        count = get_gen_count()
-        generate_training_data(count=count, flags=flags)
+        if "gr" not in flags:
+            count = get_gen_count()
+            generate_training_data(count=count, flags=flags)
 
         train_model(flags=flags)
 
