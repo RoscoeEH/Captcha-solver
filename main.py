@@ -12,24 +12,23 @@ def parse_flags(args):
         't': ['v', 's'],
         'e': ['v', 's']
     }
-
+    
+    command_args = {"g", "gen", "generate", "t", "train", "e", "eval", "evaluate"}
+    
     flags = {}
-
-    i = 0
+    
+    # Skip the command argument if present
+    start_idx = 1 if args and args[0].lower() in command_args else 0
+    
+    i = start_idx
     while i < len(args):
         arg = args[i].lower()
         
-        # Skip command type arguments
-        if arg in ["g", "gen", "generate", "t", "train", "e", "eval", "evaluate"]:
-            i += 1
-            continue
-
         # Handle flags
-        if len(arg) >= 2 and arg[0] == "-" and arg[1] in ["g", "e", "t"]:
+        if len(arg) >= 2 and arg[0] == "-" and arg[1] in valid_flags:
             flag_type = arg[1]
             # Process each character as a flag
             for char in arg[2:]:
-                # Validate the flag character
                 if char not in valid_flags[flag_type]:
                     raise Exception(f"Invalid flag character '{char}' for flag type '-{flag_type}'")
                 
@@ -48,9 +47,9 @@ def parse_flags(args):
         
 
 def get_gen_count():
-    count = input("How many samples should be generated (default 10,000)")
+    count = input("How many samples should be generated (default 100,000)")
     if count == "":
-        count = 10_000
+        count = 100_000
     elif count.isdigit():
         count = int(count)
     else:
