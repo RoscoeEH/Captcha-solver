@@ -46,7 +46,7 @@ def add_captcha(args):
 def generate_data(count, image_dir, output_csv, flags):
     # Clear directory and CSV if not extending
     data = []
-    if "E" not in flags:
+    if "ge" not in flags:
         if os.path.exists(image_dir):
             shutil.rmtree(image_dir)
         # Reset CSV file by emptying data list
@@ -62,7 +62,7 @@ def generate_data(count, image_dir, output_csv, flags):
                     start_num = last_num + 1
 
     # Read existing data if extending and update padding if needed
-    if "E" in flags and os.path.exists(output_csv):
+    if "ge" in flags and os.path.exists(output_csv):
         with open(output_csv, 'r') as f:
             for line in f:
                 if line.strip():

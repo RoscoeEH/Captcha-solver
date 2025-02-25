@@ -6,24 +6,43 @@ import sys
 
 
 def parse_flags(args):
+    # Valid flag characters for each flag type
+    valid_flags = {
+        'g': ['e'],
+        't': ['v', 's'],
+        'e': ['v', 's']
+    }
+
     flags = {}
 
-    if len(args) > 0:
-        for arg in args:
-            arg = arg.lower()
-            
-            if arg in ["g", "gen", "generate", "t", "train", "e", "eval", "evaluate"]:
-                continue
+    i = 0
+    while i < len(args):
+        arg = args[i].lower()
+        
+        # Skip command type arguments
+        if arg in ["g", "gen", "generate", "t", "train", "e", "eval", "evaluate"]:
+            i += 1
+            continue
 
-            elif len(arg) < 3 or arg[0] != "-" or arg[1] not in ["g", "e", "t"]:
-                raise Exception(f"Unrecognized arugment: {arg}")
-
-            else:
-                flag_type = arg[1]
-                for char in arg[2:]:
-                    flags[flag_type + char] = 0
-
-            # TODO: add unrecongized arguments for other kinds of flags
+        # Handle flags
+        if len(arg) >= 2 and arg[0] == "-" and arg[1] in ["g", "e", "t"]:
+            flag_type = arg[1]
+            # Process each character as a flag
+            for char in arg[2:]:
+                # Validate the flag character
+                if char not in valid_flags[flag_type]:
+                    raise Exception(f"Invalid flag character '{char}' for flag type '-{flag_type}'")
+                
+                # Check if next argument is a value
+                if i + 1 < len(args) and not args[i + 1].startswith("-"):
+                    flags[flag_type + char] = args[i + 1]
+                    i += 1
+                else:
+                    flags[flag_type + char] = True
+        else:
+            raise Exception(f"Unrecognized argument: {arg}")
+        
+        i += 1
 
     return flags
         
@@ -71,7 +90,3 @@ if __name__ == "__main__":
         generate_test_data(flags=flags)
         evaluate_model(flags)
         
-
-
-
-# TODO: handle bug with flags in test v training generation
