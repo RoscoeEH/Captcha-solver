@@ -29,13 +29,13 @@ def train_model(training_csv_file="Training_Data_Mappings.csv",
                          lr=LEARNING_RATE,
                          weight_decay=0.01,
                          betas=(0.9, 0.999))
-    # Check if a saved model exists
+
+
+
     model_path = "captcha_recognition_model.pth"
     optimizer_path = "captcha_optimizer.pth"
-
-
     # Load the previous iteration
-    if os.path.exists(model_path):
+    if "tr" in flags and os.path.exists(model_path):
         print("Loading existing model...")
         model.load_state_dict(torch.load(model_path))
         if os.path.exists(optimizer_path):

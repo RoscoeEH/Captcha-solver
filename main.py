@@ -9,7 +9,7 @@ def parse_flags(args):
     # Valid flag characters for each flag type
     valid_flags = {
         'g': ['e', 'r'],
-        't': ['v', 's'],
+        't': ['v', 's', 'r'],
         'e': ['v', 's']
     }
     
