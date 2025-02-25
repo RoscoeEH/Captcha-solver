@@ -13,7 +13,6 @@ import os
 def train_model(training_csv_file="Training_Data_Mappings.csv",
                 training_data_dir="Training_Data", flags={}):
 
-    # At the start of train_model()
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
 
@@ -21,14 +20,15 @@ def train_model(training_csv_file="Training_Data_Mappings.csv",
     dataset = Captcha_Text_Dataset(labels_csv=training_csv_file, captcha_dir=training_data_dir, transform=transform)
     dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
-    # Model, Loss, and Optimizer
+    # Model, loss, and optimizer
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = Net(NUM_CLASSES, HIDDEN_DIM, NUM_LSTM_LAYERS).to(device)
 
-    optimizer = optim.Adam(model.parameters(), 
-                        lr=LEARNING_RATE,
-                        weight_decay=1e-5)
+    optimizer = optim.AdamW(model.parameters(), 
+                         lr=LEARNING_RATE,
+                         weight_decay=0.01,
+                         betas=(0.9, 0.999))
     # Check if a saved model exists
     model_path = "captcha_recognition_model.pth"
     optimizer_path = "captcha_optimizer.pth"
@@ -48,8 +48,9 @@ def train_model(training_csv_file="Training_Data_Mappings.csv",
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, 
         mode='min', 
-        factor=0.5, 
-        patience=3
+        factor=0.2,
+        patience=2,
+        min_lr=1e-6
     )
 
     # ====================
@@ -65,8 +66,7 @@ def train_model(training_csv_file="Training_Data_Mappings.csv",
             images = images.to(device)
             labels = labels.to(device)
 
-            # Add gradient clipping
-            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            optimizer.zero_grad()
 
             outputs = model(images)
             batch_size, seq_len, num_classes = outputs.shape
@@ -75,16 +75,18 @@ def train_model(training_csv_file="Training_Data_Mappings.csv",
             outputs = outputs.reshape(-1, num_classes)
             labels = labels.reshape(-1)
 
-            # Only compute loss on non-padding elements
             loss = criterion(outputs, labels)
 
-
-            # Backward pass
-            optimizer.zero_grad()
+            # Add gradient clipping after loss
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=2.0)
+
             optimizer.step()
 
             total_loss += loss.item()
+
+            if loss.item() < 1e-7:
+                print("Warning: Very small loss detected, possible vanishing gradient")
 
             # After each iteration
             torch.cuda.empty_cache()
