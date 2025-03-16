@@ -4,7 +4,6 @@ from generate import generate_training_data, generate_test_data
 import sys
 
 
-
 def parse_flags(args):
     # Valid flag characters for each flag type
     valid_flags = {
@@ -30,6 +29,7 @@ def parse_flags(args):
             # Process each character as a flag
             for char in arg[2:]:
                 if char not in valid_flags[flag_type]:
+                    
                     raise Exception(f"Invalid flag character '{char}' for flag type '-{flag_type}'")
                 
                 # Check if next argument is a value
@@ -44,7 +44,7 @@ def parse_flags(args):
         i += 1
 
     return flags
-        
+ 
 
 def get_gen_count():
     count = input("How many samples should be generated (default 100,000)")
@@ -58,8 +58,7 @@ def get_gen_count():
     return count
 
 
-
-if __name__ == "__main__":
+def main():
     args = sys.argv[1:]
     flags = parse_flags(args)
 
@@ -88,4 +87,9 @@ if __name__ == "__main__":
 
         generate_test_data(flags=flags)
         evaluate_model(flags)
-        
+     
+
+if __name__ == "__main__":
+    main()   
+
+

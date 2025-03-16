@@ -6,68 +6,113 @@ This project implements a CAPTCHA recognition system using a Convolutional Neura
 
 - Python 3.9.6
 - PyTorch 2.2.2
-- Pandas
-- Pillow
+- Pandas 2.2.3
+- Pillow 11.0.0
 - torchvision 0.17.2
-- captcha
+- captcha 0.6.0
 
-## Training
+## Project Structure
 
-1. **Generate CAPTCHA Data**:
-   The `generate.py` script generates CAPTCHA images and labels. Run the script with the number of images you want to generate:
-   
+- `main.py` - Main entry point for running all operations (generate, train, evaluate)
+- `generate.py` - Generates CAPTCHA training and test data
+- `training.py` - Contains the model training logic
+- `evaluate.py` - Evaluates model performance on test data
+- `setup.py` - Contains model architecture and training parameters
+- `helpers.py` - Utility functions for training and evaluation
+
+## Usage
+
+The project can be run using `main.py` with different commands and flags:
+
+1. **Run Complete Pipeline**:
    ```bash
-   python generate.py <num_images>
+   python main.py
    ```
-   
-   This will create a folder called `Training_Data` with images and a CSV file `Training_Data_Mappings.csv` containing the corresponding labels. 
-   
-   The generate script can be run with the following flags:
-   - "-E" - extends the dataset
-   - "-T" - data with the names "Test_Data" and :"Test_Data_Mappings.csv"
+   This will:
+   - Generate training data
+   - Train the model
+   - Generate test data
+   - Evaluate the model
 
-2. **Train the Model**:
-   Use `train_model.py` to train the CAPTCHA recognition model. It will load the images from `Training_Data` and labels from `Training_Data_Mappings.csv`. The model is a CNN followed by an LSTM layer, which is trained using CTC loss.
-
-   Run the training script:
+2. **Generate Data Only**:
    ```bash
-   python training.py 
+   python main.py g
    ```
-   
-   The training parameters are in the file "model_parameters.py"
+   Flags:
+   - `-ge` - Extends existing dataset
+   - `-gr` - Skip generation count prompt
 
-3. **Model Saving**:
-   After training, the model will be saved automatically in the current directory as `captcha_recognition_model.pth`.
+3. **Train Model Only**:
+   ```bash
+   python main.py t
+   ```
+   Flags:
+   - `-tv` - Verbose output during training
+   - `-ts` - Save training output to file
+   - `-tr` - Resume training from saved model state
+
+4. **Evaluate Model Only**:
+   ```bash
+   python main.py e
+   ```
+   Flags:
+   - `-ev` - View each CAPTCHA and model attempt
+   - `-es` - Save evaluation results to file
+   - `-eg` - Generate new test data before evaluation
+
+## Data Generation
+
+The system generates CAPTCHA images with the following characteristics:
+- 5-8 length strings of alphanumeric characters
+- Image dimensions: 280x90 pixels
+- Padded with underscores to 8 characters
+- Stored in `Training_Data/` or `Test_Data/` directories
+- Labels stored in `Training_Data_Mapping` and `Test_Data_Mappings.csv`
 
 ## Model Architecture
 
-- **CNN Layers**: Two convolutional layers followed by max-pooling.
-- **LSTM Layer**: To capture sequential relationships in the CAPTCHA string.
-- **Fully Connected Layer**: To output the final predictions.
+- **CNN Layers**: Two convolutional layers followed by max-pooling
+- **LSTM Layer**: Captures sequential relationships in the CAPTCHA string
+- **Fully Connected Layer**: Outputs final predictions
+- **Advanced Features**:
+  - Early stopping mechanism
+  - Learning rate scheduling
+  - Gradient clipping
+  - Model state saving and loading
 
-The model is trained to output a sequence of character predictions for each image. CTC loss is used to train the network because it allows the model to predict sequences of varying lengths without needing to align each output to a specific character.
+## Training
+
+The model training process includes:
+- Batch processing with configurable batch size
+- Learning rate scheduling for optimal convergence
+- Early stopping to prevent overfitting
+- Model and optimizer state saving for training continuation
+- Training progress monitoring and logging options
 
 ## Evaluation
 
-The model's performance can be evaluated using the following metrics:
+The model's performance is evaluated using:
+1. **Character-Level Accuracy**: Percentage of individual characters correctly predicted
+2. **Full-String Accuracy**: Percentage of perfectly predicted CAPTCHA strings
 
-1. **Character-Level Accuracy**: The percentage of individual characters correctly predicted across all CAPTCHAs.
-2. **Full-String Accuracy**: The percentage of CAPTCHA strings that are perfectly predicted (all characters correct).
+Evaluation results can be:
+- Displayed in real-time with visual inspection (`-ev` flag)
+- Saved to a file (`-es` flag)
+- Generated using fresh test data (`-eg` flag)
 
-To evaluate the model on your test data, use the evaluation script:
-```bash
-python evaluate.py
-```
-This can be run with the flag "-V" to view each captcha an attempt from the model.
+## Model Files
 
-The script will load the trained model from `captcha_recognition_model.pth` and output:
-- Overall accuracy metrics
-- Sample predictions with their corresponding ground truth labels
+After training, the following files are saved:
+- `captcha_recognition_model.pth` - Trained model state
+- `captcha_optimizer.pth` - Optimizer state for training continuation
 
+## Flag Combinations
 
-The model's performance can vary significantly based on:
-- Quality and quantity of training data
-- Complexity of the CAPTCHA patterns
-- Model hyperparameters
-- Training duration
+Flags with the same prefix can be combined for more concise commands. For example, instead of `-ge -gr` you can use `-ger`
+
+This works for any combination of valid flags under the same prefix:
+- Generate flags (`-g`): e, r
+- Training flags (`-t`): v, s, r
+- Evaluation flags (`-e`): v, s, g
+
 
