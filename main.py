@@ -1,3 +1,19 @@
+# main.py
+#
+# Author: RoscoeEH
+#
+# Description:
+# The main entry point for the CAPTCHA recognition pipeline. Based on the command-line
+# arguments and flags, this script can generate training data, train the model, evaluate 
+# it, or run the entire pipeline in sequence. It includes support for dynamically parsing 
+# flags, setting data generation counts, and running different tasks (generation, training, 
+# evaluation) as specified by the user.
+#
+# Command-Line Flags:
+# -g, --gen: Generate training data for model.
+# -t, --train: Train the model using existing data.
+# -e, --eval: Evaluate the model performance and optionally generate test data.
+
 from evaluate import evaluate_model
 from training import train_model
 from generate import generate_training_data, generate_test_data

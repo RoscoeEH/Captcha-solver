@@ -1,3 +1,13 @@
+# training.py
+#
+# Author: RoscoeEH
+#
+# Description:
+# Handles the training loop for the CAPTCHA recognition model. Loads data from a CSV
+# and directory of CAPTCHA images, defines optimizer, loss, and scheduler, and supports
+# resuming from a previous checkpoint. Includes early stopping and gradient clipping.
+
+
 import torch
 from torch.utils.data import DataLoader
 import torch.nn as nn

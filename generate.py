@@ -1,3 +1,13 @@
+# generate.py
+#
+# Author: RoscoeEH
+#
+# Description:
+# Generates CAPTCHA images with random alphanumeric strings and saves
+# them to a specified directory. Also creates a CSV mapping of filenames
+# to their corresponding CAPTCHA text. Supports parallel generation and
+# data extension via flags.
+
 from captcha.image import ImageCaptcha
 import random
 import string

@@ -1,3 +1,12 @@
+# setup.py
+#
+# Author: RoscoeEH
+#
+# Description:
+# Contains model setup for CAPTCHA recognition, including dataset class, data
+# transformations, and the convolutional-recurrent neural network architecture.
+# Also defines constants related to model training and character encoding.
+
 import os
 import torch
 from torch.utils.data import Dataset

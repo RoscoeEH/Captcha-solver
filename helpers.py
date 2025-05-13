@@ -1,5 +1,10 @@
-# Helper functions
-
+# helpers.py
+#
+# Author: RoscoeEH
+#
+# Description:
+# Provides utility functions for reading CAPTCHA label CSV files into
+# dictionaries and for early stopping checks based on convergence criteria.
 
 # Used to read in the filenames and the string encoded in the captcha
 # Reads a 2-col csv into a hashmap where the first value is the key and the second is the value

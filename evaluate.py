@@ -1,3 +1,12 @@
+# evaluate.py
+#
+# Author: RoscoeEH
+#
+# Description:
+# Evaluates the trained CAPTCHA recognition model on a test dataset.
+# Computes both full-string and character-level accuracy metrics, and
+# optionally prints or saves predictions for analysis.
+
 import torch
 from setup import Net, Captcha_Text_Dataset, transform, HIDDEN_DIM, NUM_LSTM_LAYERS, BATCH_SIZE, NUM_CLASSES
 import string
